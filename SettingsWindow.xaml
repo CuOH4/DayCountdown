@@ -1,0 +1,218 @@
+<Window x:Class="DayCountdown.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="设置"
+        Icon="/icon.ico"
+        Width="360" SizeToContent="Height"
+        MaxHeight="560"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True">
+    <Window.Resources>
+        <Style TargetType="MenuItem">
+            <Setter Property="Foreground" Value="#D8D8EA"/>
+            <Setter Property="FontFamily" Value="Microsoft YaHei UI"/>
+        </Style>
+
+        <!-- 深色风格滑块 -->
+        <Style x:Key="ModernSlider" TargetType="Slider">
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Slider">
+                        <Grid VerticalAlignment="Center">
+                            <Border x:Name="TrackBd" Height="4" CornerRadius="2" Background="#33334D"
+                                    VerticalAlignment="Center"/>
+                            <Track x:Name="PART_Track">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="Slider.DecreaseLarge" Focusable="False"
+                                                  Background="Transparent" IsTabStop="False">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border Background="#6C5CE7" CornerRadius="2"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.DecreaseRepeatButton>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="Slider.IncreaseLarge" Focusable="False"
+                                                  Background="Transparent" IsTabStop="False">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border Background="#33334D" CornerRadius="2"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.IncreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Ellipse Fill="#E4E4F0" Width="14" Height="14"/>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="MiniButton" TargetType="Button">
+            <Setter Property="Foreground" Value="#A6A6C6"/>
+            <Setter Property="Background" Value="#2E2E4A"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontFamily" Value="Microsoft YaHei UI"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#3E3E5E"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#48486C"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <DataTemplate x:Key="ItemTemplate">
+            <Border CornerRadius="8" Background="#232340" Padding="10,6" Margin="0,0,0,6">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="#E4E4F0" FontFamily="Microsoft YaHei UI"
+                                       TextTrimming="CharacterEllipsis" MaxWidth="150"/>
+                            <TextBlock Text="{Binding StateText}" FontSize="10"
+                                       Foreground="{Binding StateColor}" Margin="8,2,0,0"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="{Binding DateText}" FontSize="11" Foreground="#7E7EA0"
+                                   Margin="0,2,0,0" FontFamily="Consolas"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Content="打开" Style="{StaticResource MiniButton}"
+                                Tag="{Binding Id}" Click="OpenItem_Click" Margin="0,0,6,0"/>
+                        <Button Content="删除" Style="{StaticResource MiniButton}"
+                                Tag="{Binding Id}" Click="DeleteItem_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid Margin="14" MouseLeftButtonDown="Grid_MouseLeftButtonDown">
+        <Border CornerRadius="16" Background="#F0242440">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="22" ShadowDepth="0" Opacity="0.55" Color="#000000"/>
+            </Border.Effect>
+            <Grid Margin="20,16,20,16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="⚙ 设置" FontSize="16" FontWeight="SemiBold"
+                           Foreground="#E8E8F5" Margin="0,0,0,14"/>
+
+                <!-- 开机自启 -->
+                <Grid Grid.Row="1" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="开机自启" FontSize="14" Foreground="#E4E4F0"
+                                   FontFamily="Microsoft YaHei UI"/>
+                        <TextBlock Text="登录 Windows 时自动恢复倒计时" FontSize="11"
+                                   Foreground="#7E7EA0" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <ToggleButton x:Name="AutoStartToggle" Style="{StaticResource SwitchToggle}"
+                                  HorizontalAlignment="Right" VerticalAlignment="Center"
+                                  Checked="AutoStartToggle_Checked" Unchecked="AutoStartToggle_Unchecked"/>
+                </Grid>
+
+                <!-- 背景透明度 -->
+                <Grid Grid.Row="2" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="背景透明度" FontSize="14" Foreground="#E4E4F0"
+                                   FontFamily="Microsoft YaHei UI"/>
+                        <TextBlock Text="调节倒计时卡片背景的透明度，拖动实时预览"
+                                   FontSize="11" Foreground="#7E7EA0" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <Grid HorizontalAlignment="Right" VerticalAlignment="Center" Width="160">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Slider x:Name="OpacitySlider" Style="{StaticResource ModernSlider}"
+                                Minimum="5" Maximum="100" IsSnapToTickEnabled="False"
+                                ValueChanged="OpacitySlider_ValueChanged" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="OpacityValueText" Grid.Column="1" Width="38"
+                                   TextAlignment="Right" FontSize="11" Foreground="#A8A8C8"
+                                   VerticalAlignment="Center" FontFamily="Consolas"/>
+                    </Grid>
+                </Grid>
+
+                <Separator Grid.Row="3" Background="#2E2E4A" Margin="0,2,0,10"/>
+
+                <!-- 已保存倒计时 -->
+                <TextBlock Grid.Row="4" Text="已保存倒计时" FontSize="12" Foreground="#9E9EBC"
+                           Margin="2,0,0,8" FontFamily="Microsoft YaHei UI"/>
+                <ListBox x:Name="ItemsList" Grid.Row="5" Background="Transparent" BorderThickness="0"
+                         ItemTemplate="{StaticResource ItemTemplate}"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         MaxHeight="230" SelectionMode="Single"/>
+
+                <!-- 提示 -->
+                <TextBlock Grid.Row="6" Text="✕ 关闭窗口仅隐藏并保留记录，重启不丢失；删除才会移除记录。"
+                           FontSize="11" Foreground="#7E7EA0" TextWrapping="Wrap" LineHeight="17"
+                           Margin="2,8,0,0" FontFamily="Microsoft YaHei UI"/>
+
+                <Button Grid.Row="7" Content="完成" Click="Done_Click" Margin="0,12,0,0"
+                        HorizontalAlignment="Right" Padding="20,6" Cursor="Hand"
+                        Foreground="White" Background="#6C5CE7" BorderThickness="0" FontSize="13"
+                        FontFamily="Microsoft YaHei UI">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="8">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="#7D6EF2"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="#5A4BD6"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
